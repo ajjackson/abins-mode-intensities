@@ -22,8 +22,10 @@ db_file = Path(snakemake.input[0])
 def tosca_broadening(x: Quantity) -> Quantity:
     """Gaussian width parameter for TOSCA as a function of energy"""
     from numpy.polynomial import Polynomial
+
     poly = Polynomial([2.5, 5e-3, 1e-7])
     return poly(x.to("1/cm").magnitude) * ureg("1/cm")
+
 
 def plot_spectrum(x: list[float], y: list[float]) -> None:
     """Plot a binned spectrum line from scattered x/y input"""
@@ -34,15 +36,12 @@ def plot_spectrum(x: list[float], y: list[float]) -> None:
     hist /= bin_width  # Correct intensity scaling for bins
 
     if snakemake.params.instrument != "TOSCA":
-        raise Exception(
-            "Currently only TOSCA resolution function is available."
-        )
+        raise Exception("Currently only TOSCA resolution function is available.")
 
-    spectrum = Spectrum1D(ureg.Quantity(bins, "1/cm"),
-                          ureg.Quantity(hist, "cm"))
-    spectrum = spectrum.broaden(x_width=tosca_broadening,
-                                shape="gauss",
-                                width_convention="std")
+    spectrum = Spectrum1D(ureg.Quantity(bins, "1/cm"), ureg.Quantity(hist, "cm"))
+    spectrum = spectrum.broaden(
+        x_width=tosca_broadening, shape="gauss", width_convention="std"
+    )
     spectrum *= plot_config["intensity_scale"]
 
     fig = plot_1d(spectrum)
@@ -50,15 +49,18 @@ def plot_spectrum(x: list[float], y: list[float]) -> None:
     fig.gca().set_xlim(bins[0], bins[-1])
     fig.savefig(snakemake.output["plot"])
 
+
 # Create output directories if necessary
 for output in snakemake.output:
     Path(output).parent.mkdir(parents=True, exist_ok=True)
 
 x, y = [], []
 
-with (dataset.connect(f"sqlite:///{db_file.resolve()}") as db,
-      open(snakemake.output["csv"], "wt") as csv,
-      open(snakemake.output["txt"], "wt") as txt):
+with (
+    dataset.connect(f"sqlite:///{db_file.resolve()}") as db,
+    open(snakemake.output["csv"], "wt") as csv,
+    open(snakemake.output["txt"], "wt") as txt,
+):
     print(f"# mode_index,frequency,intensity", file=csv)
     print(f"# mode_index  frequency  intensity", file=txt)
 
@@ -66,17 +68,18 @@ with (dataset.connect(f"sqlite:///{db_file.resolve()}") as db,
     atoms_table = db["atoms"]
     modes_table = db["modes"]
 
-    cross_sections = dict(map(itemgetter("atom_index", "cross_section"),
-                              atoms_table.all()))
+    cross_sections = dict(
+        map(itemgetter("atom_index", "cross_section"), atoms_table.all())
+    )
 
-    frequencies = dict(map(itemgetter("mode_index", "frequency"),
-                           modes_table.all()))
+    frequencies = dict(map(itemgetter("mode_index", "frequency"), modes_table.all()))
 
     def get_intensity(data_row):
         return cross_sections[data_row["atom_index"]] * data_row["weight"]
 
-    for mode_index, group in groupby(abins_table.find(order_by="mode_index"),
-                                     key=itemgetter("mode_index")):
+    for mode_index, group in groupby(
+        abins_table.find(order_by="mode_index"), key=itemgetter("mode_index")
+    ):
         frequency = frequencies[mode_index]
         intensity = sum(map(get_intensity, group))
 

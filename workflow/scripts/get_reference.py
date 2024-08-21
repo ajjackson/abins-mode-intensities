@@ -24,7 +24,9 @@ mantid.simpleapi.SaveAscii(
 
 abins_kwargs.update(
     dict(
-        OutputWorkspace="multiphonon", QuantumOrderEventsNumber="2", Autoconvolution=True
+        OutputWorkspace="multiphonon",
+        QuantumOrderEventsNumber="2",
+        Autoconvolution=True,
     )
 )
 mantid.simpleapi.Abins(**abins_kwargs)  # Run Abins, creating new workspace
