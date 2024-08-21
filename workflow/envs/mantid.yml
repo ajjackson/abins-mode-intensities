@@ -1,0 +1,10 @@
+name: mantid
+
+channels:
+- mantid
+- conda-forge
+
+dependencies:
+- mantid=6.10
+- matplotlib=3.9.2
+- dataset=1.6.2

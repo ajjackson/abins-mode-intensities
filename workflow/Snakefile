@@ -1,0 +1,72 @@
+configfile: "config/config.yaml"
+
+
+rule all:
+    input:
+        "results/modes.db",
+        "results/plot.pdf",
+        "results/reference.pdf",
+
+
+rule get_all_intensities:
+    """Use Abins internals to write mode data to a DB"""
+    input:
+        config["abins"]["VibrationalOrPhononFile"],
+    params:
+        abins_kwargs=config["abins"],
+        qpt=config["qpt"],
+    output:
+        "results/modes.db",
+    conda:
+        "envs/mantid.yml"
+    shadow:
+        "shallow"
+    script:
+        "scripts/get_all_intensities.py"
+
+
+rule get_reference:
+    """Use Abins Algorithm to compute fundamental and multi-phonon spectra"""
+    input:
+        config["abins"]["VibrationalOrPhononFile"],
+    params:
+        abins_kwargs=config["abins"],
+    output:
+        "results/ref_fundamentals.csv",
+        "results/ref_multiphonon.csv",
+    conda:
+        "envs/mantid.yml"
+    shadow:
+        "shallow"
+    script:
+        "scripts/get_reference.py"
+
+
+rule plot_modes:
+    input:
+        "results/modes.db",
+    output:
+        plot="results/plot.pdf",
+        csv="results/intensities.csv",
+        txt="results/intensities.txt",
+    params:
+        plot=config["plot"],
+        instrument=config["abins"]["Instrument"],
+    conda:
+        "envs/mantid.yml"
+    script:
+        "scripts/plot_modes.py"
+
+
+rule plot_reference:
+    input:
+        fundamentals="results/ref_fundamentals.csv",
+        multiphonon="results/ref_multiphonon.csv",
+    output:
+        plot="results/reference.pdf",
+    params:
+        plot=config["plot"],
+    conda:
+        "envs/mantid.yml"
+    script:
+        "scripts/plot_reference.py"
