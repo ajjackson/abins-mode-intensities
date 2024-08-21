@@ -30,15 +30,15 @@ mamba activate snakemake
 
 ## Running the workflow
 
-Input files are configured in *config.yml*. This workflow includes sample data for an ethanol molecule computed with GAUSSIAN16;
-to use your own data and modify other workflow parameters, either edit the *config.yml* and run
+Input files are configured in *config/config.yaml*. This workflow includes sample data for an ethanol molecule computed with GAUSSIAN16;
+to use your own data and modify other workflow parameters, either edit the *config.yaml* and run
 
 ```
 snakemake -c 1 --sdm conda
 ```
 
-or create a modified copy of *config.yml* and point to it with
+or create a modified copy of *config.yaml* and point to it with
 
 ```
-snakemake -c 1 --sdm conda --config /path/to/my/config.yml
+snakemake -c 1 --sdm conda --config /path/to/my/config.yaml
 ```

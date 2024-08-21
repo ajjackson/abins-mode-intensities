@@ -1,0 +1,16 @@
+# (0-based) index of q-point to consider in mode-resolved intensities
+qpt: 0
+
+# Abins parameters: see https://docs.mantidproject.org/nightly/algorithms/Abins-v1.html
+abins:
+    VibrationalOrPhononFile: "sample_data/ethanol.log"
+    AbInitioProgram: "GAUSSIAN"
+    TemperatureInKelvin: 10
+    ScaleByCrossSection: "Total"
+    Instrument: "TOSCA"
+    Setting: "All detectors (TOSCA)"
+
+plot:
+    intensity_scale: 0.5  # Arbitrary scale factor
+    x_min: 0              # Minimum frequency in cm-1
+    x_max: 4000           # Maximum frequency in cm-1
