@@ -17,12 +17,13 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3.0.4
         with:
           miniforge-version: "latest"
-          conda-solver: "libmamba"
+          activate-environment: snakemake
 
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Snakemake
-        run: |
-          conda install -y -c bioconda snakemake
-          snakemake --cores=1 --sdm=conda --conda-cleanup-pkgs=cache
+      - name: Install snakemake
+        run: conda install -y -c bioconda 'snakemake>=8.18.2,<9'
+
+      - name: Run Snakemake
+        run: snakemake --cores=1 --sdm=conda --conda-cleanup-pkgs=cache
