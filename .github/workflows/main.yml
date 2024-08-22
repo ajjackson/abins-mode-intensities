@@ -13,12 +13,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3.0.4
+        with:
+          miniforge-version: "latest"
+          conda-solver: "libmamba"
+
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Snakemake
-        uses: snakemake/snakemake-github-action@v1.25.1
-        with:
-          directory: '.'
-          snakefile: 'workflow/Snakefile'
-          args: '--cores=1 --sdm=conda --conda-cleanup-pkgs=cache'
-          stagein: 'sudo apt-get update && sudo apt-get install libgl1'
+        run: |
+          conda install -y -c bioconda snakemake
+          snakemake --cores=1 --sdm=conda --conda-cleanup-pkgs=cache
