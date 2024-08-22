@@ -12,7 +12,8 @@ The steps of the workflow are:
 - Plot from .csv files to verify that results are consistent with "normal" Abins results
 
 ## Limitations
-Currently the workflow will only use a single q-point of the input phonon data.
+- Currently the workflow will only use a single q-point of the input phonon data.
+- Mantid 6.10 is not built for ARM-based Mac; it should be possible to do something clever with a Rosetta/x86 conda environment, but this is not tested
 
 ## Installation
 To use this workflow, you need access to Conda (or Mamba) and Snakemake. For example, [IDAaaS](https://isis.analysis.stfc.ac.uk/) users should be able to create a suitable environment from a terminal with
