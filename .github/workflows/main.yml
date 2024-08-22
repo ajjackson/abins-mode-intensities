@@ -21,4 +21,4 @@ jobs:
           directory: '.'
           snakefile: 'workflow/Snakefile'
           args: '--cores=1 --sdm=conda --conda-cleanup-pkgs=cache'
-          stagein: 'apt-get update && apt-get install libgl1'
+          stagein: 'sudo apt-get update && sudo apt-get install libgl1'
