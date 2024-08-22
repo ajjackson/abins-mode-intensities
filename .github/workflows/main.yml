@@ -12,6 +12,8 @@ jobs:
     - uses: pre-commit/action@v3.0.1
   test:
     runs-on: ubuntu-latest
-    steps:  
+    steps:
     - name: snakemake
       uses: snakemake/snakemake-github-action@v1.25.1
+      with:
+        snakefile: workflow/Snakefile
