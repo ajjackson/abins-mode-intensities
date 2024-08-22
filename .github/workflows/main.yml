@@ -19,3 +19,5 @@ jobs:
         uses: snakemake/snakemake-github-action@v1.25.1
         with:
           snakefile: workflow/Snakefile
+          args:
+            "--config config/config.yaml"
