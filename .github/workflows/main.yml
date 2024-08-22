@@ -26,4 +26,5 @@ jobs:
         run: conda install -y -c bioconda -c conda-forge 'snakemake>=8.18.2,<9' 'python=3.12'
 
       - name: Run Snakemake
+        shell: bash -el {0}
         run: snakemake --cores=1 --sdm=conda --conda-cleanup-pkgs=cache
