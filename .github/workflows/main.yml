@@ -18,6 +18,5 @@ jobs:
       - name: Snakemake
         uses: snakemake/snakemake-github-action@v1.25.1
         with:
-          directory: '.test'
-          snakefile: 'workflow/Snakefile'
-          args: '--cores=1 --config=config/config.yaml --sdm=conda --conda-cleanup-pkgs=cache'
+          directory: '.'
+          args: '--cores=1 --sdm=conda --conda-cleanup-pkgs=cache'
