@@ -24,17 +24,13 @@ jobs:
         with:
           python-version: '3.12'
           channels: bioconda,conda-forge
-          channel-priority: true
+          channel-priority: strict
           miniforge-version: "latest"
           activate-environment: snakemake
 
-      - name: TMP
-        run: |
-            echo $CONDA_PREFIX
-            echo $PATH
+      - name: Install Snakemake
+        run: conda install -y -c bioconda -c conda-forge 'snakemake>=8.18.2,<9' 'python=3.12'
 
-      - name: Snakemake
-        run: |
-          conda install -y -c bioconda -c conda-forge 'snakemake>=8.18.2,<9' 'python=3.12'
-          snakemake --cores=1 --sdm=conda --conda-cleanup-pkgs=cache
+      - name: Run Snakemake
+        run: snakemake --cores=1 --sdm=conda --conda-cleanup-pkgs=cache
 
