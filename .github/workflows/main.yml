@@ -19,4 +19,5 @@ jobs:
         uses: snakemake/snakemake-github-action@v1.25.1
         with:
           directory: '.'
+          snakefile: 'workflow/Snakefile'
           args: '--cores=1 --sdm=conda --conda-cleanup-pkgs=cache'
