@@ -1,0 +1,35 @@
+name: main
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v3
+    - uses: pre-commit/action@v3.0.1
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3.0.4
+        with:
+          python-version: '3.12'
+          channels: bioconda,conda-forge
+          miniforge-version: "latest"
+          activate-environment: snakemake
+
+      - name: Install Snakemake
+        run: conda install -y 'snakemake>=8.18.2,<9' 'python=3.12'
+
+      - name: Run Snakemake
+        run: snakemake --cores=1 --sdm=conda --conda-cleanup-pkgs=cache
+
