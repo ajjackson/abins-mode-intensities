@@ -9,21 +9,26 @@ from matplotlib import pyplot as plt
 
 
 plot_config = snakemake.params.plot
+plt.style.use(plot_config["style"])
 
 
-def read_spectrum(input_file: Path) -> tuple[np.ndarray, np.ndarray]:
-    return np.loadtxt(
-        input_file, delimiter=",", skiprows=2, usecols=(0, 1), unpack=True
-    )
+def read_spectrum(input_file: Path, **kwargs) -> tuple[np.ndarray, np.ndarray]:
+    return np.loadtxt(input_file, unpack=True, usecols=(0, 1), **kwargs)
 
 
 fig, ax = plt.subplots()
 
-ax.plot(*read_spectrum(snakemake.input["multiphonon"]), label="Multi-phonon")
-ax.plot(*read_spectrum(snakemake.input["fundamentals"]), label="Fundamentals")
+x, y = read_spectrum(snakemake.input["summed"], delimiter=" ")
+ax.plot(x, np.array(y) * plot_config["intensity_scale"], label="Sum over modes")
+
+ax.plot(
+    *read_spectrum(snakemake.input["fundamentals"], skiprows=2, delimiter=","),
+    label="From Abins",
+    linestyle=":",
+)
 
 ax.set_xlim(plot_config["x_min"], plot_config["x_max"])
-ax.set_title("Abins total spectrum")
+ax.set_title("Fundamental-only spectrum")
 ax.legend()
 
 fig.tight_layout()

@@ -10,7 +10,28 @@ abins:
     Instrument: "TOSCA"
     Setting: "All detectors (TOSCA)"
 
-plot:
-    intensity_scale: 0.5  # Arbitrary scale factor
+binning:
     x_min: 0              # Minimum frequency in cm-1
     x_max: 4000           # Maximum frequency in cm-1
+    n_bins: 4001
+
+plot:
+    x_min: 0                      # Minimum frequency in cm-1
+    x_max: 4000                   # Maximum frequency in cm-1
+    intensity_scale: 0.5          # Scale factor for mode sums (e.g. averaging factor over detector banks)
+    style: "tableau-colorblind10" # Matplotlib stylesheet
+
+highlights:  # 0-based indices of modes to highlight in plot
+    - 2      # (For ethanol example these are A' modes)
+    - 4      # COUNTING FROM 0 MAY NOT BE THE SAME CONVENTION AS YOUR INPUT FILE
+    - 5
+    - 6
+    - 8
+    - 10
+    - 11
+    - 13
+    - 14
+    - 15
+    - 17
+    - 18
+    - 20

@@ -3,9 +3,10 @@ configfile: "config/config.yaml"
 
 rule all:
     input:
-        "results/modes.db",
-        "results/plot.pdf",
+        "results/intensities_binned.txt",
+        "results/highlights_binned.txt",
         "results/reference.pdf",
+        "results/plot.pdf",
 
 
 rule get_all_intensities:
@@ -42,16 +43,60 @@ rule get_reference:
         "scripts/get_reference.py"
 
 
-rule plot_modes:
+rule write_modes:
     input:
         "results/modes.db",
     output:
-        plot="results/plot.pdf",
         csv="results/intensities.csv",
         txt="results/intensities.txt",
     params:
         plot=config["plot"],
+        selection=None,
+    conda:
+        "envs/mantid.yml"
+    script:
+        "scripts/write_modes.py"
+
+
+rule write_highlights:
+    input:
+        "results/modes.db",
+    output:
+        csv="results/highlights.csv",
+        txt="results/highlights.txt",
+    params:
+        plot=config["plot"],
+        selection=config["highlights"],
+    conda:
+        "envs/mantid.yml"
+    script:
+        "scripts/write_modes.py"
+
+
+rule bin_and_broaden:
+    """Bin modes to grid and apply resolution convolution"""
+    input:
+        "results/{prefix}.csv",
+    output:
+        "results/{prefix}_binned.txt",
+    params:
         instrument=config["abins"]["Instrument"],
+        bin_config=config["binning"],
+    conda:
+        "envs/mantid.yml"
+    script:
+        "scripts/bin_and_broaden.py"
+
+
+rule plot_modes:
+    input:
+        highlights="results/highlights_binned.txt",
+        fundamentals="results/ref_fundamentals.csv",
+        multiphonon="results/ref_multiphonon.csv",
+    output:
+        plot="results/plot.pdf",
+    params:
+        plot=config["plot"],
     conda:
         "envs/mantid.yml"
     script:
@@ -60,8 +105,8 @@ rule plot_modes:
 
 rule plot_reference:
     input:
+        summed="results/intensities_binned.txt",
         fundamentals="results/ref_fundamentals.csv",
-        multiphonon="results/ref_multiphonon.csv",
     output:
         plot="results/reference.pdf",
     params:
