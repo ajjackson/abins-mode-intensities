@@ -1,3 +1,6 @@
+[![DOI](https://zenodo.org/badge/845630830.svg)](https://doi.org/10.5281/zenodo.13902560)
+
+
 # Abins mode intensities
 
 A workflow to compute mode-resolved contributions to simulated inelastic neutron-scattering spectra.
