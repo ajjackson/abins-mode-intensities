@@ -8,6 +8,7 @@ from snakemake.script import snakemake
 
 from abins import AbinsData, PowderCalculator
 from abins.abinsalgorithm import AbinsAlgorithm
+from abins.atominfo import AtomInfo
 from abins.instruments import get_instrument
 from abins.spowdersemiempiricalcalculator import SPowderSemiEmpiricalCalculator
 
@@ -28,7 +29,7 @@ def write_atoms_to_db(abins_data, db) -> None:
         nucleons_number = int(round(mass))
 
         xs = AbinsAlgorithm.get_cross_section(
-            scattering="Total", nucleons_number=nucleons_number, protons_number=z_number
+            scattering="Total", species=AtomInfo(symbol, mass)
         )
         atoms_table.insert(
             dict(atom_index=i, symbol=symbol, mass=mass, z=z_number, cross_section=xs)
@@ -45,33 +46,38 @@ if db_file.exists():
 db = dataset.connect(f"sqlite:///{db_file.resolve()}")
 
 # Read data from vibration/phonon calculation, write atom data to DB
-abins_data = AbinsData.from_calculation_data(
-    abins_kwargs["VibrationalOrPhononFile"], abins_kwargs["AbInitioProgram"]
-)
-write_atoms_to_db(abins_data, db)
+import tempfile
+with tempfile.TemporaryDirectory() as tmp_dir:
+    cache = Path(tmp_dir)
+    abins_data = AbinsData.from_calculation_data(
+        abins_kwargs["VibrationalOrPhononFile"], abins_kwargs["AbInitioProgram"], cache_directory=cache,
+        )
+    write_atoms_to_db(abins_data, db)
 
-# Set up Abins calculation objects
-powder_calculator = PowderCalculator(
-    filename=abins_kwargs["VibrationalOrPhononFile"],
-    abins_data=abins_data,
-    temperature=float(abins_kwargs["TemperatureInKelvin"]),
-)
-instrument = get_instrument(abins_kwargs["Instrument"], setting=abins_kwargs["Setting"])
-calculator = SPowderSemiEmpiricalCalculator(
-    filename=abins_kwargs["VibrationalOrPhononFile"],
-    temperature=float(abins_kwargs["TemperatureInKelvin"]),
-    abins_data=abins_data,
-    instrument=instrument,
-    quantum_order_num=1,
-    autoconvolution_max=0,
-)
+    # Set up Abins calculation objects
+    powder_calculator = PowderCalculator(
+        filename=abins_kwargs["VibrationalOrPhononFile"],
+        abins_data=abins_data,
+        temperature=float(abins_kwargs["TemperatureInKelvin"]),
+        cache_directory=cache,
+        )
+    instrument = get_instrument(abins_kwargs["Instrument"], setting=abins_kwargs["Setting"])
+    calculator = SPowderSemiEmpiricalCalculator(
+        filename=abins_kwargs["VibrationalOrPhononFile"],
+        temperature=float(abins_kwargs["TemperatureInKelvin"]),
+        abins_data=abins_data,
+        instrument=instrument,
+        quantum_order_num=1,
+        autoconvolution_max=0,
+        cache_directory=cache,
+    )
 
-# Compute displacement tensors and traces
-powder_data = powder_calculator.get_formatted_data()
-a_tensors = powder_data.get_a_tensors()[K_INDEX]
-a_traces = powder_data.get_a_traces(K_INDEX)
-b_tensors = powder_data.get_b_tensors()[K_INDEX]
-b_traces = powder_data.get_b_traces(K_INDEX)
+    # Compute displacement tensors and traces
+    powder_data = powder_calculator.get_formatted_data()
+    a_tensors = powder_data.get_a_tensors()[K_INDEX]
+    a_traces = powder_data.get_a_traces(K_INDEX)
+    b_tensors = powder_data.get_b_tensors()[K_INDEX]
+    b_traces = powder_data.get_b_traces(K_INDEX)
 
 frequencies = powder_data.get_frequencies()[K_INDEX]
 write_frequencies_to_db(frequencies, db)
