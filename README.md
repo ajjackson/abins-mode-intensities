@@ -44,5 +44,5 @@ snakemake -c 1 --sdm conda
 or create a modified copy of *config.yaml* and point to it with
 
 ```
-snakemake -c 1 --sdm conda --config /path/to/my/config.yaml
+snakemake -c 1 --sdm conda --configfile /path/to/my/config.yaml
 ```
